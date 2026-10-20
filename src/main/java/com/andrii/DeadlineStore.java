@@ -1,9 +1,6 @@
 package com.andrii;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DeadlineStore {
     private final Map<Long, List<Deadline>> deadlines = new HashMap<>();
@@ -14,6 +11,9 @@ public class DeadlineStore {
         deadlines.get(chatId).add(deadline);
     }
     public List<Deadline> getAll(long chatId) {
-        return deadlines.getOrDefault(chatId, List.of());
+        List<Deadline> list = deadlines.getOrDefault(chatId, List.of());
+        List<Deadline> copy = new ArrayList<>(list);
+        copy.sort(Comparator.comparing(Deadline::getDueAt));
+        return copy;
     }
 }
