@@ -7,6 +7,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.List;
+
 public class DeadlineBot implements LongPollingSingleThreadUpdateConsumer {
     private final TelegramClient telegramClient;
     private final DeadlineStore store = new DeadlineStore();
@@ -32,6 +34,22 @@ public class DeadlineBot implements LongPollingSingleThreadUpdateConsumer {
             } catch (IllegalArgumentException e) {
                 sendText(chatId, e.getMessage());
             }
+        } else if ("/list".equals(text)) {
+            List<Deadline> deadlines = store.getAll(chatId);
+            if (deadlines.isEmpty()) {
+                sendText(chatId, "No deadlines yet.");
+                return;
+            }
+            StringBuilder sb = new StringBuilder("Your deadlines:\n");
+            for (Deadline d : deadlines) {
+                sb.append(d.getCourse())
+                        .append(" — ")
+                        .append(d.getTitle())
+                        .append(" — ")
+                        .append(d.getDueAt().format(DeadlineParser.FORMAT))
+                        .append("\n");
+            }
+            sendText(chatId, sb.toString());
         }
     }
 

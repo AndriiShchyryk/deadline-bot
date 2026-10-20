@@ -6,7 +6,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 
 public class DeadlineParser {
-    private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+    public static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
     public static Deadline parse(String text) {
         String[] parts = text.trim().split("\\s+");
