@@ -27,6 +27,7 @@ A Telegram bot that helps students keep track of their university deadlines.
 - Java 21
 - Maven
 - TelegramBots 10.3.0
+- SQLite (via JDBC)
 
 
 ## Project structure
@@ -35,8 +36,7 @@ A Telegram bot that helps students keep track of their university deadlines.
 - `DeadlineBot` — receives messages from Telegram, decides which command was sent and sends the reply.
 - `DeadlineParser` — checks the format of the `/add` command and turns the text into a `Deadline`.
 - `Deadline` — a model of one deadline: course, title and due date.
-- `DeadlineStore` — keeps deadlines in memory, separately for each chat, and returns them sorted by date.
-
+- `DeadlineStore` — saves deadlines to a SQLite database using JDBC and prepared statements, and returns them sorted by date for each chat.
 Each class has one responsibility, so the parsing and storage logic can be changed or tested without touching the Telegram code.
 
 
@@ -52,7 +52,7 @@ Each class has one responsibility, so the parsing and storage logic can be chang
 
 ## Roadmap
 
-- [ ] Store deadlines in a database so they are not lost after a restart
+- [x] Store deadlines in a database so they are not lost after a restart
 - [ ] Send reminders one day and one hour before a deadline
 - [ ] Add `/start`, `/help` and `/delete` commands
 - [ ] Replace `printStackTrace` with proper logging

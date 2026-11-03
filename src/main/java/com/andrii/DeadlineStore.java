@@ -16,7 +16,8 @@ public class DeadlineStore {
                         chat_id INTEGER NOT NULL,
                         course  TEXT NOT NULL,
                         title   TEXT NOT NULL,
-                        due_at  TEXT NOT NULL
+                        due_at  TEXT NOT NULL,
+                        reminded INTEGER NOT NULL DEFAULT 0                                                        
                     )
                     """);
         } catch (SQLException e) {
@@ -35,6 +36,17 @@ public class DeadlineStore {
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Could not save the deadline", e);
+        }
+    }
+
+    public void markReminded(long id) {
+        String sql = "UPDATE deadlines SET reminded = 1 WHERE id = ?";
+        try (Connection connection = DriverManager.getConnection(DB_URL);
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not mark the deadline as reminded", e);
         }
     }
 
