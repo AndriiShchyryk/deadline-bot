@@ -7,14 +7,20 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class DeadlineBot implements LongPollingSingleThreadUpdateConsumer {
     private final TelegramClient telegramClient;
     private final DeadlineStore store = new DeadlineStore();
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     public DeadlineBot(String botToken) {
         this.telegramClient = new OkHttpTelegramClient(botToken);
+        scheduler.scheduleAtFixedRate(this::sendReminders, 0, 1, TimeUnit.MINUTES);
     }
 
     @Override
@@ -50,6 +56,24 @@ public class DeadlineBot implements LongPollingSingleThreadUpdateConsumer {
                         .append("\n");
             }
             sendText(chatId, sb.toString());
+        }
+    }
+
+    private void sendReminders() {
+        try {
+            LocalDateTime now = LocalDateTime.now();
+            List<Reminder> reminders = store.findDeadlinesToRemind(now, now.plusHours(24));
+
+            for (Reminder r : reminders) {
+                Deadline d = r.deadline();
+                String text = "Reminder: " + d.getCourse() + " — " + d.getTitle()
+                        + " is due " + d.getDueAt().format(DeadlineParser.FORMAT);
+
+                sendText(r.chatId(), text);
+                store.markReminded(r.id());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
