@@ -2,6 +2,8 @@
 
 A Telegram bot that helps students keep track of their university deadlines.
 
+<img src="docs/demo.png" alt="Deadline Bot demo" width="400">
+
 ## Features
 
 - `/add` — add a new deadline
