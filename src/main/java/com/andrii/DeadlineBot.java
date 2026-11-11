@@ -72,6 +72,17 @@ public class DeadlineBot implements LongPollingSingleThreadUpdateConsumer {
                 sendText(r.chatId(), text);
                 store.markReminded(r.id());
             }
+
+            List<Reminder> remindersHour = store.findDeadlinesToRemindHour(now, now.plusHours(1));
+
+            for (Reminder r : remindersHour) {
+                Deadline d = r.deadline();
+                String text = "Reminder: " + d.getCourse() + " — " + d.getTitle()
+                        + " is due in one hour (" + d.getDueAt().format(DeadlineParser.FORMAT) + ")";
+
+                sendText(r.chatId(), text);
+                store.markRemindedHour(r.id());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

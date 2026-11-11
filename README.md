@@ -9,7 +9,7 @@ A Telegram bot that helps students keep track of their university deadlines.
 - `/add` — add a new deadline
 - `/list` — see all your deadlines, sorted by date
 - `/ping` — check that the bot is running
-- Automatic reminder 24 hours before each deadline
+- Automatic reminders 24 hours and 1 hour before each deadline
 
 ## Example
 
@@ -61,7 +61,7 @@ The database file `deadlines.db` is created automatically on the first run. Remi
 
 - [x] Store deadlines in a database so they are not lost after a restart
 - [x] Send a reminder one day before a deadline
-- [ ] Send a second reminder one hour before a deadline
+- [x] Send a second reminder one hour before a deadline
 - [ ] Add `/start`, `/help` and `/delete` commands
 - [ ] Replace `printStackTrace` with proper logging
 - [ ] Deploy the bot to a server so it runs 24/7

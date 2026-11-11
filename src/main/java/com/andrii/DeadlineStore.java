@@ -17,7 +17,8 @@ public class DeadlineStore {
                         course  TEXT NOT NULL,
                         title   TEXT NOT NULL,
                         due_at  TEXT NOT NULL,
-                        reminded INTEGER NOT NULL DEFAULT 0                                                        
+                        reminded INTEGER NOT NULL DEFAULT 0,
+                        reminded_hour INTEGER NOT NULL DEFAULT 0
                     )
                     """);
         } catch (SQLException e) {
@@ -47,6 +48,17 @@ public class DeadlineStore {
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Could not mark the deadline as reminded", e);
+        }
+    }
+
+    public void markRemindedHour(long id) {
+        String sql = "UPDATE deadlines SET reminded_hour = 1 WHERE id = ?";
+        try (Connection connection = DriverManager.getConnection(DB_URL);
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not mark the deadline as reminded (one hour)", e);
         }
     }
 
@@ -90,6 +102,30 @@ public class DeadlineStore {
             }
         } catch (SQLException e) {
             throw new RuntimeException("Could not load deadlines to remind", e);
+        }
+        return result;
+    }
+
+    public List<Reminder> findDeadlinesToRemindHour(LocalDateTime from, LocalDateTime to) {
+        String sql = "SELECT id, chat_id, course, title, due_at FROM deadlines WHERE reminded_hour = 0 AND due_at > ? AND due_at <= ? ORDER BY due_at";
+        List<Reminder> result = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection(DB_URL);
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, from.toString());
+            statement.setString(2, to.toString());
+            try (ResultSet rows = statement.executeQuery()) {
+                while (rows.next()) {
+                    long id = rows.getLong("id");
+                    long chatId = rows.getLong("chat_id");
+                    String course = rows.getString("course");
+                    String title = rows.getString("title");
+                    LocalDateTime dueAt = LocalDateTime.parse(rows.getString("due_at"));
+                    Deadline deadline = new Deadline(course, title, dueAt);
+                    result.add(new Reminder(id, chatId, deadline));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not load deadlines for the one-hour reminder", e);
         }
         return result;
     }
