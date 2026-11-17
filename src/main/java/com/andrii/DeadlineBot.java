@@ -14,6 +14,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class DeadlineBot implements LongPollingSingleThreadUpdateConsumer {
+    private static final String HELP_TEXT = "This bot helps you track your university deadlines.\n" +
+            "Commands:\n" +
+            "- /add — add a new deadline (Format: <course> <title> <dd.MM.yyyy> <HH:mm>)\n" +
+            "Example: /add CS355 Assignment 2 20.12.2026 23:59\n" +
+            "- /list — see all your deadlines, sorted by date\n" +
+            "- /ping — check that the bot is running\n" +
+            "- Automatic reminders 24 hours and 1 hour before each deadline\n";
+            ;
     private final TelegramClient telegramClient;
     private final DeadlineStore store = new DeadlineStore();
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -56,6 +64,8 @@ public class DeadlineBot implements LongPollingSingleThreadUpdateConsumer {
                         .append("\n");
             }
             sendText(chatId, sb.toString());
+        } else if ("/start".equals(text) || "/help".equals(text)) {
+            sendText(chatId, HELP_TEXT);
         }
     }
 
