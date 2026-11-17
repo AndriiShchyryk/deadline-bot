@@ -55,13 +55,17 @@ public class DeadlineBot implements LongPollingSingleThreadUpdateConsumer {
                 return;
             }
             StringBuilder sb = new StringBuilder("Your deadlines:\n");
+            int i = 1;
             for (Deadline d : deadlines) {
-                sb.append(d.getCourse())
+                sb.append(i)
+                        .append(". ")
+                        .append(d.getCourse())
                         .append(" — ")
                         .append(d.getTitle())
                         .append(" — ")
                         .append(d.getDueAt().format(DeadlineParser.FORMAT))
                         .append("\n");
+                i++;
             }
             sendText(chatId, sb.toString());
         } else if ("/start".equals(text) || "/help".equals(text)) {
