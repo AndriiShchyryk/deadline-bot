@@ -20,8 +20,8 @@ public class DeadlineBot implements LongPollingSingleThreadUpdateConsumer {
             "Example: /add CS355 Assignment 2 20.12.2026 23:59\n" +
             "- /list — see all your deadlines, sorted by date\n" +
             "- /ping — check that the bot is running\n" +
+            "- /delete <number> — delete a deadline by its number from /list\n" +
             "- Automatic reminders 24 hours and 1 hour before each deadline\n";
-            ;
     private final TelegramClient telegramClient;
     private final DeadlineStore store = new DeadlineStore();
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -70,6 +70,26 @@ public class DeadlineBot implements LongPollingSingleThreadUpdateConsumer {
             sendText(chatId, sb.toString());
         } else if ("/start".equals(text) || "/help".equals(text)) {
             sendText(chatId, HELP_TEXT);
+        } else if (text.startsWith("/delete")) {
+            String[] parts = text.split("\\s+");
+            if (parts.length != 2) {
+                sendText(chatId, "Format: /delete <number>");
+                return;
+            }
+            try {
+                int position = Integer.parseInt(parts[1]);
+                if (position < 1) {
+                    sendText(chatId, "Format: /delete <number>");
+                    return;
+                }
+                if (store.delete(chatId, position)) {
+                    sendText(chatId, "Deleted.");
+                } else {
+                    sendText(chatId, "No deadline with number " + position + ". Use /list to see numbers.");
+                }
+            } catch (NumberFormatException e) {
+                sendText(chatId, "Format: /delete <number>");
+            }
         }
     }
 
