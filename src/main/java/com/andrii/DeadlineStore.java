@@ -63,7 +63,7 @@ public class DeadlineStore {
     }
 
     public List<Deadline> getAll(long chatId) {
-        String sql = "SELECT course, title, due_at FROM deadlines WHERE chat_id = ? ORDER BY due_at";
+        String sql = "SELECT course, title, due_at FROM deadlines WHERE chat_id = ? ORDER BY due_at, id";
         List<Deadline> result = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(DB_URL);
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -128,5 +128,24 @@ public class DeadlineStore {
             throw new RuntimeException("Could not load deadlines for the one-hour reminder", e);
         }
         return result;
+    }
+
+    public boolean delete(long chatId, int position) {
+        String sql = """
+        DELETE FROM deadlines
+        WHERE id = (SELECT id FROM deadlines
+                    WHERE chat_id = ?
+                    ORDER BY due_at, id
+                    LIMIT 1 OFFSET ?)
+        """;
+        try (Connection connection = DriverManager.getConnection(DB_URL);
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, chatId);
+            statement.setInt(2, position - 1);
+            int deleted = statement.executeUpdate();
+            return deleted > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to delete deadline", e);
+        }
     }
 }
